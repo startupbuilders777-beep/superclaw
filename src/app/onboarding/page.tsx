@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { SkillSelection } from "@/components/skills/SkillSelection"
 
-type Step = "welcome" | "agent-setup" | "api-key" | "tutorial" | "complete"
+type Step = "welcome" | "agent-setup" | "api-key" | "skills" | "tutorial" | "complete"
 
 interface OnboardingData {
   agentName: string
@@ -26,6 +27,7 @@ export default function OnboardingPage() {
     { key: "welcome", label: "Welcome" },
     { key: "agent-setup", label: "Create Agent" },
     { key: "api-key", label: "API Key" },
+    { key: "skills", label: "Skills" },
     { key: "tutorial", label: "Tutorial" }
   ]
 
@@ -270,6 +272,14 @@ export default function OnboardingPage() {
                 I&apos;ve Saved My Key
               </button>
             </div>
+          )}
+
+          {/* Skills Step */}
+          {currentStep === "skills" && data.agentId && (
+            <SkillSelection
+              agentId={data.agentId}
+              onComplete={handleNext}
+            />
           )}
 
           {/* Tutorial Step */}
