@@ -100,6 +100,12 @@ model VerificationToken {
 }
 
 model Agent {
+  // Cron scheduling configuration
+  scheduleEnabled Boolean  @default(false)
+  scheduleType    String?  // hourly, daily, weekly
+  scheduleTime    String?  // time of day for daily/weekly (HH:mm)
+  scheduleDay     String?  // day of week for weekly (monday, tuesday, etc.)
+  scheduleCron    String?  // custom cron expression
   id              String   @id @default(cuid())
   name            String
   status          String   @default("pending") // pending, active, stopped
