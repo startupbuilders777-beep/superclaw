@@ -4,6 +4,13 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!stripe.instance) {
+      return NextResponse.json(
+        { error: "Stripe not configured. Please set STRIPE_SECRET_KEY." },
+        { status: 503 }
+      );
+    }
+
     const body = await req.json();
     const { tier, userId, successUrl, cancelUrl } = body;
 
@@ -31,7 +38,7 @@ export async function POST(req: NextRequest) {
     let customerId = user.stripeCustomerId;
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await stripe.instance.customers.create({
         email: user.email,
         metadata: {
           userId: user.id,
@@ -49,7 +56,7 @@ export async function POST(req: NextRequest) {
     // Create checkout session
     const priceId = getPriceIdForTier(tier as SubscriptionTier);
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripe.instance.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
       line_items: [
