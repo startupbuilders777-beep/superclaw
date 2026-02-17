@@ -1,19 +1,27 @@
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY is not set");
+// Lazy initialization - only create Stripe instance if key exists
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return null;
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2026-01-28.clover",
+    typescript: true,
+  });
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2026-01-28.clover",
-  typescript: true,
-});
+export const stripe = {
+  get instance() {
+    return getStripe();
+  }
+};
 
 // Price IDs configuration
 export const PRICE_IDS = {
-  STARTER: process.env.STRIPE_STARTER_PRICE_ID!,
-  PRO: process.env.STRIPE_PRO_PRICE_ID!,
-  AGENCY: process.env.STRIPE_AGENCY_PRICE_ID!,
+  STARTER: process.env.STRIPE_STARTER_PRICE_ID || "",
+  PRO: process.env.STRIPE_PRO_PRICE_ID || "",
+  AGENCY: process.env.STRIPE_AGENCY_PRICE_ID || "",
 } as const;
 
 export type SubscriptionTier = "STARTER" | "PRO" | "AGENCY";
