@@ -111,6 +111,12 @@ model Agent {
   containerId     String?
   containerStatus String?
   
+  // Health tracking
+  healthStatus    String?  // healthy, unhealthy, unknown
+  lastHealthCheck DateTime?
+  lastError       String?
+  restartCount    Int      @default(0)
+  
   // User relation
   userId          String
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
