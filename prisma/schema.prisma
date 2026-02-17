@@ -142,3 +142,16 @@ model StripeEvent {
   
   createdAt DateTime @default(now())
 }
+
+// Message usage tracking for billing analytics
+model MessageUsage {
+  id            String   @id @default(cuid())
+  userId        String
+  count         Int      @default(1)
+  periodStart   DateTime // Start of the billing period (monthly)
+  periodEnd     DateTime // End of the billing period
+  agentId       String?  // Optional: which agent sent the message
+  createdAt     DateTime @default(now())
+
+  @@index([userId, periodStart])
+}
