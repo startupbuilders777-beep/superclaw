@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { routeMessage } from '@/lib/message-router'
 
 // Telegram message types
 interface TelegramUpdate {
@@ -349,6 +350,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           chatId,
           '🚀 To upgrade your plan, visit our pricing page:\n\nhttps://superclaw.ai/pricing'
         )
+      } else if (text.startsWith(COMMANDS.CANCEL)) {
+        // Handle cancel command
+        const chatId = body.message.chat.id
+        await sendTelegramMessage(chatId, 'Operation cancelled. What else can I help you with?')
+      } else {
+        // Route message to agent
+        const telegramId = body.message.from?.id
+        const chatId = body.message.chat.id
+        
+        if (telegramId) {
+          const result = await routeMessage('telegram', String(telegramId), text)
+          
+          if (result.success && result.response) {
+            await sendTelegramMessage(chatId, result.response)
+          } else if (result.error) {
+            await sendTelegramMessage(chatId, result.error)
+          }
+        }
       }
 
       return NextResponse.json({ ok: true })
