@@ -3,13 +3,25 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-type Step = "welcome" | "agent-setup" | "api-key" | "tutorial" | "complete"
+type Step = "welcome" | "agent-setup" | "skill-picker" | "api-key" | "tutorial" | "complete"
 
 interface OnboardingData {
   agentName: string
   apiKey: string
   agentId: string
+  selectedSkills: string[]
 }
+
+const AVAILABLE_SKILLS = [
+  { id: "messaging", name: "Messaging", icon: "💬", description: "Send messages via Telegram, Discord, Slack" },
+  { id: "calendar", name: "Calendar", icon: "📅", description: "Schedule meetings and manage events" },
+  { id: "content", name: "Content Writing", icon: "📝", description: "Write blog posts, emails, social media" },
+  { id: "seo", name: "SEO", icon: "🔍", description: "Optimize content for search engines" },
+  { id: "marketing", name: "Marketing", icon: "📢", description: "Run ad campaigns and analyze metrics" },
+  { id: "support", name: "Customer Support", icon: "🎧", description: "Handle support tickets and FAQs" },
+  { id: "data", name: "Data Analysis", icon: "📊", description: "Analyze data and generate reports" },
+  { id: "custom", name: "Custom", icon: "⚙️", description: "Build custom skills with code" }
+]
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -18,13 +30,15 @@ export default function OnboardingPage() {
   const [data, setData] = useState<OnboardingData>({
     agentName: "",
     apiKey: "",
-    agentId: ""
+    agentId: "",
+    selectedSkills: []
   })
   const [error, setError] = useState("")
 
   const steps: { key: Step; label: string }[] = [
     { key: "welcome", label: "Welcome" },
     { key: "agent-setup", label: "Create Agent" },
+    { key: "skill-picker", label: "Skills" },
     { key: "api-key", label: "API Key" },
     { key: "tutorial", label: "Tutorial" }
   ]
@@ -44,6 +58,15 @@ export default function OnboardingPage() {
     router.push("/dashboard")
   }
 
+  const toggleSkill = (skillId: string) => {
+    setData(prev => ({
+      ...prev,
+      selectedSkills: prev.selectedSkills.includes(skillId)
+        ? prev.selectedSkills.filter(s => s !== skillId)
+        : [...prev.selectedSkills, skillId]
+    }))
+  }
+
   const handleCreateAgent = async () => {
     if (!data.agentName.trim()) {
       setError("Please enter an agent name")
@@ -59,7 +82,10 @@ export default function OnboardingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           step: "create-agent",
-          data: { name: data.agentName }
+          data: { 
+            name: data.agentName,
+            skills: data.selectedSkills
+          }
         })
       })
 
@@ -76,8 +102,9 @@ export default function OnboardingPage() {
       }))
 
       handleNext()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred"
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -162,10 +189,14 @@ export default function OnboardingPage() {
                 </div>
                 <div className="flex items-center gap-3 text-gray-300">
                   <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">2</span>
-                  Get your API key
+                  Choose skills for your agent
                 </div>
                 <div className="flex items-center gap-3 text-gray-300">
                   <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">3</span>
+                  Get your API key
+                </div>
+                <div className="flex items-center gap-3 text-gray-300">
+                  <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">4</span>
                   Quick tutorial
                 </div>
               </div>
@@ -214,17 +245,78 @@ export default function OnboardingPage() {
 
               <div className="flex gap-4">
                 <button
-                  onClick={handleCreateAgent}
-                  disabled={loading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                  onClick={handleNext}
+                  disabled={!data.agentName.trim()}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition-colors"
                 >
-                  {loading ? "Creating..." : "Create Agent"}
+                  Continue
                 </button>
                 <button
                   onClick={handleSkip}
                   className="px-6 py-3 text-gray-400 hover:text-white transition-colors"
                 >
                   Skip
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Skill Picker Step */}
+          {currentStep === "skill-picker" && (
+            <div>
+              <h2 className="text-xl font-bold text-white mb-2">Choose Agent Skills</h2>
+              <p className="text-gray-400 mb-6">Select the skills you want your agent to have.</p>
+
+              <div className="space-y-3 mb-6 max-h-80 overflow-y-auto">
+                {AVAILABLE_SKILLS.map((skill) => (
+                  <button
+                    key={skill.id}
+                    onClick={() => toggleSkill(skill.id)}
+                    className={`w-full p-4 rounded-lg border text-left transition-all ${
+                      data.selectedSkills.includes(skill.id)
+                        ? "bg-blue-600/20 border-blue-500"
+                        : "bg-gray-900 border-gray-700 hover:border-gray-600"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{skill.icon}</span>
+                      <div>
+                        <div className="font-medium text-white">{skill.name}</div>
+                        <div className="text-sm text-gray-400">{skill.description}</div>
+                      </div>
+                      {data.selectedSkills.includes(skill.id) && (
+                        <svg className="w-5 h-5 text-blue-400 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {data.selectedSkills.length > 0 && (
+                <div className="mb-4 p-3 bg-gray-900 rounded-lg">
+                  <div className="text-sm text-gray-400 mb-2">Selected: {data.selectedSkills.length} skill(s)</div>
+                  <div className="flex flex-wrap gap-2">
+                    {data.selectedSkills.map(id => {
+                      const skill = AVAILABLE_SKILLS.find(s => s.id === id)
+                      return (
+                        <span key={id} className="px-2 py-1 bg-blue-600/30 text-blue-300 text-xs rounded-full">
+                          {skill?.icon} {skill?.name}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-4">
+                <button
+                  onClick={handleCreateAgent}
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                >
+                  {loading ? "Creating..." : "Create Agent"}
                 </button>
               </div>
             </div>
@@ -349,7 +441,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Skip link */}
-        {currentStep !== "welcome" && currentStep !== "complete" && (
+        {currentStep !== "welcome" && currentStep !== "complete" && currentStep !== "skill-picker" && (
           <p className="text-center mt-6 text-gray-500 text-sm">
             Want to skip for now?{" "}
             <button onClick={handleSkip} className="text-blue-400 hover:text-blue-300">
