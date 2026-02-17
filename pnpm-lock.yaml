@@ -17,9 +17,6 @@ importers:
       '@stripe/stripe-js':
         specifier: ^8.7.0
         version: 8.7.0
-      '@types/bcrypt':
-        specifier: ^6.0.0
-        version: 6.0.0
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -42,6 +39,9 @@ importers:
         specifier: ^20.3.1
         version: 20.3.1(@types/node@25.2.3)
     devDependencies:
+      '@types/bcrypt':
+        specifier: ^6.0.0
+        version: 6.0.0
       '@types/node':
         specifier: ^25.2.3
         version: 25.2.3
