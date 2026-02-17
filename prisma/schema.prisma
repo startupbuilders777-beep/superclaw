@@ -36,6 +36,8 @@ model User {
   
   // Auth providers
   telegramId          String?  @unique
+  slackId             String?  @unique
+  slackTeamId         String?  @unique
   discordId           String?  @unique
   
   // Stripe customer info
@@ -56,6 +58,7 @@ model User {
   
   // NextAuth relations
   accounts            Account[]
+  slackWorkspaces    SlackWorkspace[]
   sessions            Session[]
   
   // Timestamps
@@ -166,4 +169,38 @@ model MessageUsage {
   createdAt     DateTime @default(now())
 
   @@index([userId, periodStart])
+}
+
+// Slack workspace connection
+model SlackWorkspace {
+  id              String   @id @default(cuid())
+  slackTeamId     String   @unique
+  slackTeamName   String?
+  slackBotToken   String?  // Encrypted
+  slackBotUserId  String?
+  slackAccessToken String?  // Encrypted - user token for additional permissions
+  webhookUrl      String?  // Incoming webhook for notifications
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+// Slack slash command log
+model SlackCommand {
+  id          String   @id @default(cuid())
+  command     String
+  userId      String?
+  userName    String?
+  channelId   String?
+  channelName String?
+  teamId      String?
+  responseUrl String?
+  text        String?
+  createdAt   DateTime @default(now())
+  
+  @@index([createdAt])
 }
