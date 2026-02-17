@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { ensureUserNetwork, checkContainerLimit, getTierResourceLimits } from '@/lib/multi-tenant';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -11,7 +12,7 @@ const CONTAINER_PREFIX = 'superclaw-agent-';
 
 /**
  * POST /api/agents/[agentId]/spawn
- * Spawn a Docker container for an agent
+ * Spawn a Docker container for an agent with multi-tenant isolation
  */
 export async function POST(
   request: NextRequest,
@@ -24,6 +25,28 @@ export async function POST(
     }
 
     const { agentId } = await params;
+    const userId = session.user.id;
+
+    // Get the user to check subscription tier
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { subscriptionTier: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Check container limit based on tier
+    const limitCheck = await checkContainerLimit(userId, user.subscriptionTier);
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ 
+        error: 'Container limit reached',
+        current: limitCheck.current,
+        limit: limitCheck.limit,
+        upgradeUrl: '/pricing'
+      }, { status: 403 });
+    }
 
     // Get the agent
     const agent = await prisma.agent.findFirst({
@@ -46,22 +69,29 @@ export async function POST(
       }, { status: 400 });
     }
 
+    // Get tier-based resource limits
+    const tierLimits = getTierResourceLimits(user.subscriptionTier);
+
+    // Ensure user-specific network exists for isolation
+    const userNetwork = await ensureUserNetwork(userId);
+
     // Generate unique container name
     const containerName = `${CONTAINER_PREFIX}${agent.id.slice(-8)}`;
     
-    // Build docker run command with agent-specific config
+    // Build docker run command with agent-specific config and network isolation
     const skills = agent.skills ? JSON.stringify(agent.skills) : '{}';
     const dockerCmd = `docker run -d \
       --name ${containerName} \
       --label "superclaw.agent.id=${agent.id}" \
       --label "superclaw.user.id=${agent.userId}" \
+      --network ${userNetwork} \
       -e AGENT_ID=${agent.id} \
       -e USER_ID=${agent.userId} \
       -e AGENT_SKILLS='${skills}' \
       -e NEXT_AUTH_SECRET=${process.env.NEXTAUTH_SECRET} \
       -e NEXT_AUTH_URL=${process.env.NEXTAUTH_URL} \
-      --memory=512m \
-      --cpus=0.5 \
+      --memory=${tierLimits.memoryMB}m \
+      --cpus=${tierLimits.cpu} \
       --restart=unless-stopped \
       ${DOCKER_IMAGE}`;
 
@@ -92,6 +122,11 @@ export async function POST(
       containerId,
       containerName,
       status: 'starting',
+      network: userNetwork,
+      resources: {
+        memoryMB: tierLimits.memoryMB,
+        cpu: tierLimits.cpu,
+      },
       agent: {
         id: updatedAgent.id,
         name: updatedAgent.name,
