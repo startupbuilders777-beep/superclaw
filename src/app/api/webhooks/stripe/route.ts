@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import { SubscriptionStatus } from "@prisma/client";
+import type { Stripe } from "stripe";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -102,7 +103,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscriptionId = session.subscription as string;
   
   // Get subscription details
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
   
   // Map tier to message limits
   const tierLimits: Record<string, { messages: number; agents: number }> = {
@@ -119,13 +120,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripeSubscriptionId: subscriptionId,
       subscriptionTier: tier,
       subscriptionStatus: "ACTIVE",
-      subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+      subscriptionEndDate: new Date(Number(subscription.current_period_end) * 1000),
       messageLimit: limits.messages,
     },
   });
 }
 
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+async function handleSubscriptionUpdated(subscription: any) {
   const user = await prisma.user.findFirst({
     where: { stripeSubscriptionId: subscription.id },
   });
@@ -166,13 +167,13 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     data: {
       subscriptionTier: tier,
       subscriptionStatus: statusMap[subscription.status] || "ACTIVE",
-      subscriptionEndDate: new Date(subscription.current_period_end * 1000),
+      subscriptionEndDate: new Date(Number(subscription.current_period_end) * 1000),
       messageLimit: limits.messages,
     },
   });
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+async function handleSubscriptionDeleted(subscription: any) {
   const user = await prisma.user.findFirst({
     where: { stripeSubscriptionId: subscription.id },
   });
