@@ -32,7 +32,7 @@ export default async function SubscriptionDashboardPage() {
   const tierLimits: Record<string, { messages: number; agents: number; name: string }> = {
     FREE: { messages: 500, agents: 1, name: "Free" },
     STARTER: { messages: 5000, agents: 3, name: "Starter" },
-    PRO: { messages: -1, agents: 10, name: "Pro" },
+    PRO: { messages: 50000, agents: 10, name: "Pro" },
     AGENCY: { messages: -1, agents: -1, name: "Agency" },
   }
 
