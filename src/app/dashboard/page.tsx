@@ -85,9 +85,9 @@ export default async function DashboardPage() {
         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <button className="p-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors">
-              Create New Agent
-            </button>
+            <Link href="/dashboard/prompt-templates" className="p-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors">
+              Edit Prompt Templates
+            </Link>
             <button className="p-4 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors">
               View Documentation
             </button>
