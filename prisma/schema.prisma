@@ -37,6 +37,8 @@ model User {
   // Auth providers
   telegramId          String?  @unique
   discordId           String?  @unique
+  slackId             String?  @unique
+  slackTeamId         String?
   
   // Stripe customer info
   stripeCustomerId    String?  @unique
@@ -166,4 +168,32 @@ model MessageUsage {
   createdAt     DateTime @default(now())
 
   @@index([userId, periodStart])
+}
+
+model SlackWorkspace {
+  id              String   @id @default(cuid())
+  slackTeamId     String   @unique
+  slackTeamName   String?
+  slackBotToken   String?
+  slackBotUserId  String?
+  userId          String?
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SlackCommand {
+  id           String   @id @default(cuid())
+  command      String
+  userId       String?
+  userName     String?
+  channelId    String?
+  channelName  String?
+  teamId       String?
+  responseUrl  String?
+  text         String?
+  response     String?
+  
+  createdAt   DateTime @default(now())
 }
