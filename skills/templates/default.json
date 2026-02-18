@@ -1,0 +1,85 @@
+{
+  "$schema": "./skills.schema.json",
+  "version": "1.0",
+  "skills": [
+    {
+      "id": "content",
+      "name": "Content Creation",
+      "description": "Generate blog posts, social media content, and marketing copy",
+      "enabled": true,
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.7,
+        "maxTokens": 2000,
+        "systemPrompt": "You are an expert content creator..."
+      },
+      "capabilities": ["blog", "social", "copy", "email"]
+    },
+    {
+      "id": "seo",
+      "name": "SEO Optimization",
+      "description": "Optimize content for search engines",
+      "enabled": true,
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "maxTokens": 1500,
+        "systemPrompt": "You are an SEO expert..."
+      },
+      "capabilities": ["keywords", "meta", "analysis"]
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing",
+      "description": "Marketing strategy and campaign assistance",
+      "enabled": true,
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.6,
+        "maxTokens": 2000,
+        "systemPrompt": "You are a marketing strategist..."
+      },
+      "capabilities": ["strategy", "campaigns", "analytics"]
+    },
+    {
+      "id": "support",
+      "name": "Customer Support",
+      "description": "AI-powered customer support agent",
+      "enabled": false,
+      "config": {
+        "model": "gpt-3.5-turbo",
+        "temperature": 0.5,
+        "maxTokens": 500,
+        "systemPrompt": "You are a helpful customer support agent..."
+      },
+      "capabilities": ["faq", "tickets", "chat"]
+    },
+    {
+      "id": "data",
+      "name": "Data Analysis",
+      "description": "Analyze data and generate insights",
+      "enabled": false,
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.2,
+        "maxTokens": 3000,
+        "systemPrompt": "You are a data analyst..."
+      },
+      "capabilities": ["charts", "reports", "insights"]
+    },
+    {
+      "id": "custom",
+      "name": "Custom Skill",
+      "description": "User-defined custom skill",
+      "enabled": false,
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.7,
+        "maxTokens": 2000,
+        "systemPrompt": "",
+        "customCapabilities": []
+      },
+      "capabilities": []
+    }
+  ]
+}

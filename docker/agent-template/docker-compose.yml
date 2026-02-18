@@ -1,0 +1,69 @@
+# Docker Compose for Agent Container Template
+# Usage: docker-compose -f docker/agent-template/docker-compose.yml up
+
+services:
+  agent:
+    build:
+      context: ../..
+      dockerfile: docker/agent-template/Dockerfile
+    container_name: superclaw-agent-${USER_ID:-default}
+    environment:
+      # User identification for multi-tenancy
+      - USER_ID=${USER_ID}
+      - AGENT_ID=${AGENT_ID}
+      
+      # Database connection (isolated per user)
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=agent_${USER_ID}
+      
+      # Redis for session/state management
+      - REDIS_URL=redis://${REDIS_HOST:-localhost}:${REDIS_PORT:-6379}
+      
+      # Skill configuration
+      - SKILLS_ENABLED=${SKILLS_ENABLED:-"content,seo,marketing"}
+      
+      # API keys (injected at runtime)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      
+      # Agent behavior
+      - AGENT_MODE=${AGENT_MODE:-"auto"}  # auto | manual
+      - MAX_MESSAGES_PER_DAY=${MAX_MESSAGES_PER_DAY:-1000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      
+      # Network
+      - PORT=3000
+    ports:
+      - "${AGENT_PORT:-3000}:3000"
+    volumes:
+      # Persistent storage for user data
+      - agent-data:/app/data
+      
+      # Skill templates (read-only)
+      - ./skills:/app/skills:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - agent-network
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+volumes:
+  agent-data:
+    driver: local
+
+networks:
+  agent-network:
+    driver: bridge
+    name: superclaw-agents

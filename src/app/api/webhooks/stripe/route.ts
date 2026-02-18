@@ -4,16 +4,29 @@ import prisma from "@/lib/prisma";
 import { SubscriptionStatus } from "@prisma/client";
 import type { Stripe } from "stripe";
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+// Only process webhooks if stripe is configured
 export async function POST(req: NextRequest) {
+  if (!stripe.instance) {
+    // Return early if Stripe not configured (CI/development)
+    return NextResponse.json({ received: true, note: "Stripe not configured" });
+  }
+
   const body = await req.text();
-  const signature = req.headers.get("stripe-signature")!;
+  const signature = req.headers.get("stripe-signature");
+
+  if (!signature || !webhookSecret) {
+    return NextResponse.json(
+      { error: "Missing signature or webhook secret" },
+      { status: 400 }
+    );
+  }
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = stripe.instance.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     console.error(`Webhook signature verification failed: ${errorMessage}`);
@@ -95,21 +108,21 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.userId;
   const tier = session.metadata?.tier as "STARTER" | "PRO" | "AGENCY";
   
-  if (!userId) {
-    console.error("No userId in session metadata");
+  if (!userId || !stripe.instance) {
+    console.error("No userId in session metadata or Stripe not configured");
     return;
   }
 
   const subscriptionId = session.subscription as string;
   
   // Get subscription details
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
+  const subscription = await stripe.instance.subscriptions.retrieve(subscriptionId) as any;
   
   // Map tier to message limits
   const tierLimits: Record<string, { messages: number; agents: number }> = {
-    STARTER: { messages: 500, agents: 1 },
-    PRO: { messages: -1, agents: 3 }, // -1 = unlimited
-    AGENCY: { messages: -1, agents: 10 },
+    STARTER: { messages: 5000, agents: 3 },
+    PRO: { messages: 50000, agents: 10 }, // -1 = unlimited
+    AGENCY: { messages: -1, agents: -1 },
   };
 
   const limits = tierLimits[tier] || { messages: 0, agents: 0 };
@@ -127,6 +140,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdated(subscription: any) {
+  if (!stripe.instance) return;
+
   const user = await prisma.user.findFirst({
     where: { stripeSubscriptionId: subscription.id },
   });
@@ -145,9 +160,9 @@ async function handleSubscriptionUpdated(subscription: any) {
 
   // Map tier to message limits
   const tierLimits: Record<string, { messages: number; agents: number }> = {
-    STARTER: { messages: 500, agents: 1 },
-    PRO: { messages: -1, agents: 3 },
-    AGENCY: { messages: -1, agents: 10 },
+    STARTER: { messages: 5000, agents: 3 },
+    PRO: { messages: 50000, agents: 10 },
+    AGENCY: { messages: -1, agents: -1 },
   };
 
   const limits = tierLimits[tier];
