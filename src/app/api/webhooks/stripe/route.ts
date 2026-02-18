@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
-import { SubscriptionStatus } from "@prisma/client";
 import type { Stripe } from "stripe";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -132,7 +131,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     data: {
       stripeSubscriptionId: subscriptionId,
       subscriptionTier: tier,
-      subscriptionStatus: "ACTIVE",
+      subscriptionStatus: "ACTIVE" as const,
       subscriptionEndDate: new Date(Number(subscription.current_period_end) * 1000),
       messageLimit: limits.messages,
     },
@@ -168,20 +167,20 @@ async function handleSubscriptionUpdated(subscription: any) {
   const limits = tierLimits[tier];
 
   // Map Stripe status to our status
-  const statusMap: Record<string, SubscriptionStatus> = {
-    active: "ACTIVE",
-    canceled: "CANCELED",
-    past_due: "PAST_DUE",
-    trialing: "TRIALING",
-    incomplete: "INCOMPLETE",
-    incomplete_expired: "INCOMPLETE_EXPIRED",
+  const statusMap: Record<string, string> = {
+    active: "ACTIVE" as const,
+    canceled: "CANCELED" as const,
+    past_due: "PAST_DUE" as const,
+    trialing: "TRIALING" as const,
+    incomplete: "INCOMPLETE" as const,
+    incomplete_expired: "INCOMPLETE_EXPIRED" as const,
   };
 
   await prisma.user.update({
     where: { id: user.id },
     data: {
       subscriptionTier: tier,
-      subscriptionStatus: statusMap[subscription.status] || "ACTIVE",
+      subscriptionStatus: (statusMap[subscription.status] || "ACTIVE") as any,
       subscriptionEndDate: new Date(Number(subscription.current_period_end) * 1000),
       messageLimit: limits.messages,
     },
@@ -199,7 +198,7 @@ async function handleSubscriptionDeleted(subscription: any) {
     where: { id: user.id },
     data: {
       subscriptionTier: "FREE",
-      subscriptionStatus: "CANCELED",
+      subscriptionStatus: "CANCELED" as const,
       stripeSubscriptionId: null,
       messageLimit: 0,
     },
@@ -216,7 +215,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      subscriptionStatus: "PAST_DUE",
+      subscriptionStatus: "PAST_DUE" as const,
     },
   });
 }
@@ -233,7 +232,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
     where: { id: user.id },
     data: {
       messagesThisMonth: 0,
-      subscriptionStatus: "ACTIVE",
+      subscriptionStatus: "ACTIVE" as const,
     },
   });
 }
