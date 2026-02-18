@@ -1,6 +1,7 @@
 import { auth, signOut } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -64,10 +65,12 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 {session.user.image ? (
-                  <img
+                  <Image
                     src={session.user.image}
                     alt={session.user.name || "User"}
                     className="h-8 w-8 rounded-full"
+                    width={32}
+                    height={32}
                   />
                 ) : (
                   <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
@@ -137,7 +140,7 @@ export default async function DashboardPage() {
           
           {user.agents.length === 0 ? (
             <div className="p-6 text-center">
-              <p className="text-gray-400 mb-4">You haven't created any agents yet.</p>
+              <p className="text-gray-400 mb-4">You haven&apos;t created any agents yet.</p>
               <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors">
                 Create Your First Agent
               </button>
