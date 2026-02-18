@@ -60,6 +60,12 @@ model User {
   accounts            Account[]
   sessions            Session[]
   
+  // API Keys
+  apiKeys             UserApiKey[]
+  
+  // Audit Logs
+  auditLogs           AuditLog[]
+  
   // Timestamps
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -231,4 +237,43 @@ model TeamMember {
   updatedAt     DateTime @updatedAt
 
   @@unique([email, ownerId])
+}
+
+// API Keys for users (OpenAI, etc.)
+model UserApiKey {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String   // e.g., "OpenAI", "Anthropic"
+  keyHash     String   // hashed version of the API key
+  keyPrefix   String   // first few chars for display (e.g., "sk-abc...")
+  isActive   Boolean  @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+// Audit log for compliance and security
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // e.g., "agent.create", "user.update", "api_key.rotate"
+  resource    String   // e.g., "Agent", "User", "UserApiKey"
+  resourceId  String?
+  details     Json?    // additional context
+  ipAddress   String?
+  userAgent   String?
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
 }
