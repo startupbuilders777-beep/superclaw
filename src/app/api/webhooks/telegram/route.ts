@@ -270,7 +270,7 @@ async function handleStatusCommand(message: TelegramMessage): Promise<void> {
   }
 
   const agentList = user.agents
-    .map((agent, i) => {
+    .map((agent: any, i: number) => {
       const status = agent.status === 'active' ? '🟢 Active' : '⚪ ' + agent.status
       const skills = (agent.skills as any)?.type || 'Not configured'
       return `${i + 1}. *${agent.name}* - ${status}\n   Skills: ${skills}`

@@ -47,7 +47,7 @@ export async function GET() {
   })
   
   // Extract templates from agent skills or use defaults
-  const templates = DEFAULT_TEMPLATES.map(template => {
+  const templates = DEFAULT_TEMPLATES.map((template: any) => {
     // Look for custom template in agent skills
     const customTemplate = user?.agents.flatMap((agent: any) => 
       agent.skills?.promptTemplates || []
