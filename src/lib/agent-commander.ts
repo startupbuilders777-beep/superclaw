@@ -1,4 +1,20 @@
 import { prisma } from './prisma'
+import OpenAI from 'openai'
+
+// Lazy initialization of OpenAI client
+function getOpenAIClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    console.warn('[AgentCommander] OPENAI_API_KEY not configured')
+    return null
+  }
+  return new OpenAI({ apiKey })
+}
+
+// Rate limiting map
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT = 50 // requests per minute
+const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
 
 // Context for message processing
 interface MessageContext {
@@ -68,60 +84,85 @@ function buildSystemPrompt(agentType: string, config: Record<string, any>): stri
   return basePrompt
 }
 
-// Simulate agent response (placeholder for container execution)
+// Check rate limit for a user
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now()
+  const userLimit = rateLimitMap.get(userId)
+
+  if (!userLimit || now > userLimit.resetTime) {
+    // Reset or initialize rate limit
+    rateLimitMap.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW })
+    return true
+  }
+
+  if (userLimit.count >= RATE_LIMIT) {
+    return false
+  }
+
+  userLimit.count++
+  return true
+}
+
+// Process agent message with real OpenAI
 async function simulateAgentResponse(
   agent: any,
   messageText: string,
   systemPrompt: string
 ): Promise<string> {
-  // This is a placeholder - in production, this would:
-  // 1. Send the message to the agent's container via Docker API or message queue
-  // 2. Wait for response
-  // 3. Return the response
+  const userId = agent.userId
 
-  const skills = agent.skills as { type?: string } | null
-  const agentType = skills?.type || 'General'
-
-  // Simple response simulation based on agent type
-  const responses: Record<string, string[]> = {
-    'Content Writer': [
-      "I'd be happy to help you create content! What topic would you like me to write about?",
-      "Let me craft some engaging content for you. Could you share more details about your target audience?",
-      "Great! I can help with that. What format do you prefer - blog post, social media, or something else?",
-    ],
-    'SEO Specialist': [
-      "I can help you improve your SEO! Could you share the URL or keywords you'd like to optimize?",
-      "Let me analyze your SEO needs. What are your target keywords and current rankings?",
-      "Great question! I'll help you with keyword research and on-page optimization.",
-    ],
-    'Marketing': [
-      "I can help with your marketing! What type of copy do you need - ads, emails, or landing pages?",
-      "Let me create some compelling marketing copy. What's the key message you want to convey?",
-      "I'd be happy to help with your marketing campaign. What's your target audience?",
-    ],
-    'Customer Support': [
-      "Hello! I'm here to help. What can I assist you with today?",
-      "Thanks for reaching out! How can I help you?",
-      "Hi there! I'm here to answer your questions. What do you need help with?",
-    ],
-    'Data Analyst': [
-      "I can help you analyze your data. What metrics or insights are you looking for?",
-      "Let me help you generate a report. What data would you like me to analyze?",
-      "Great! I can query your data and provide insights. What's your question?",
-    ],
-    'Custom': [
-      "I received your message. How can I help you today?",
-      "Got it! Let me assist you with that.",
-      "I'm here to help. What's on your mind?",
-    ],
+  // Check rate limit
+  if (!checkRateLimit(userId)) {
+    return 'Rate limit exceeded. Please wait a moment before sending more messages.'
   }
 
-  const agentResponses = responses[agentType] || responses['Custom']
-  const randomResponse = agentResponses[Math.floor(Math.random() * agentResponses.length)]
+  // Get OpenAI client (lazy init)
+  const openai = getOpenAIClient()
+  if (!openai) {
+    return 'Sorry, the AI service is not configured. Please contact support.'
+  }
 
-  console.log(`[AgentCommander] Simulated response from agent ${agent.id} (${agentType})`)
+  try {
+    // Call OpenAI with the agent's system prompt and user message
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini', // Use cost-effective model
+      messages: [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
+        {
+          role: 'user',
+          content: messageText,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    })
 
-  return randomResponse
+    const response = completion.choices[0]?.message?.content
+
+    if (!response) {
+      throw new Error('No response from OpenAI')
+    }
+
+    console.log(`[AgentCommander] OpenAI response for agent ${agent.id}`)
+
+    return response
+  } catch (error: any) {
+    console.error('[AgentCommander] OpenAI error:', error)
+
+    // Handle specific error cases
+    if (error.code === 'insufficient_quota') {
+      return 'Sorry, the AI service is currently unavailable due to quota limits. Please contact support.'
+    }
+
+    if (error.code === 'invalid_api_key') {
+      return 'Sorry, the AI service is not properly configured. Please contact support.'
+    }
+
+    return 'Sorry, I encountered an error processing your request. Please try again.'
+  }
 }
 
 // Check if agent container is running

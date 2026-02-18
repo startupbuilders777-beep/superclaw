@@ -37,6 +37,8 @@ model User {
   // Auth providers
   telegramId          String?  @unique
   discordId           String?  @unique
+  slackId             String?  @unique
+  slackTeamId         String?
   
   // Stripe customer info
   stripeCustomerId    String?  @unique
@@ -100,6 +102,12 @@ model VerificationToken {
 }
 
 model Agent {
+  // Cron scheduling configuration
+  scheduleEnabled Boolean  @default(false)
+  scheduleType    String?  // hourly, daily, weekly
+  scheduleTime    String?  // time of day for daily/weekly (HH:mm)
+  scheduleDay     String?  // day of week for weekly (monday, tuesday, etc.)
+  scheduleCron    String?  // custom cron expression
   id              String   @id @default(cuid())
   name            String
   status          String   @default("pending") // pending, active, stopped
@@ -110,6 +118,12 @@ model Agent {
   // Container info
   containerId     String?
   containerStatus String?
+  
+  // Health tracking
+  healthStatus    String?  // healthy, unhealthy, unknown
+  lastHealthCheck DateTime?
+  lastError       String?
+  restartCount    Int      @default(0)
   
   // User relation
   userId          String
@@ -141,4 +155,80 @@ model StripeEvent {
   processed Boolean  @default(false)
   
   createdAt DateTime @default(now())
+}
+
+// Message usage tracking for billing analytics
+model MessageUsage {
+  id            String   @id @default(cuid())
+  userId        String
+  count         Int      @default(1)
+  periodStart   DateTime // Start of the billing period (monthly)
+  periodEnd     DateTime // End of the billing period
+  agentId       String?  // Optional: which agent sent the message
+  createdAt     DateTime @default(now())
+
+  @@index([userId, periodStart])
+}
+
+model SlackWorkspace {
+  id              String   @id @default(cuid())
+  slackTeamId     String   @unique
+  slackTeamName   String?
+  slackBotToken   String?
+  slackBotUserId  String?
+  userId          String?
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SlackCommand {
+  id           String   @id @default(cuid())
+  command      String
+  userId       String?
+  userName     String?
+  channelId    String?
+  channelName  String?
+  teamId       String?
+  responseUrl  String?
+  text         String?
+  response     String?
+  
+  createdAt   DateTime @default(now())
+}
+
+// Team roles
+enum TeamRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+// Team member model for agency tier
+model TeamMember {
+  id            String   @id @default(cuid())
+  email         String
+  name          String?
+  role          TeamRole @default(VIEWER)
+  
+  // Invitation status
+  status        String   @default("pending") // pending, active, declined
+  invitationToken String?
+  invitedAt     DateTime @default(now())
+  acceptedAt    DateTime?
+  
+  // User reference (if accepted)
+  userId        String?
+  
+  // Who invited this member
+  invitedById   String
+  
+  // Agency/team owner
+  ownerId       String
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([email, ownerId])
 }

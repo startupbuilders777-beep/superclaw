@@ -120,9 +120,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   
   // Map tier to message limits
   const tierLimits: Record<string, { messages: number; agents: number }> = {
-    STARTER: { messages: 500, agents: 1 },
-    PRO: { messages: -1, agents: 3 }, // -1 = unlimited
-    AGENCY: { messages: -1, agents: 10 },
+    STARTER: { messages: 5000, agents: 3 },
+    PRO: { messages: 50000, agents: 10 }, // -1 = unlimited
+    AGENCY: { messages: -1, agents: -1 },
   };
 
   const limits = tierLimits[tier] || { messages: 0, agents: 0 };
@@ -160,9 +160,9 @@ async function handleSubscriptionUpdated(subscription: any) {
 
   // Map tier to message limits
   const tierLimits: Record<string, { messages: number; agents: number }> = {
-    STARTER: { messages: 500, agents: 1 },
-    PRO: { messages: -1, agents: 3 },
-    AGENCY: { messages: -1, agents: 10 },
+    STARTER: { messages: 5000, agents: 3 },
+    PRO: { messages: 50000, agents: 10 },
+    AGENCY: { messages: -1, agents: -1 },
   };
 
   const limits = tierLimits[tier];

@@ -29,36 +29,35 @@ export async function POST(request: Request) {
 
     switch (step) {
       case "create-agent": {
-        // Create the first agent with selected skills
+        // Create the first agent
         const agentName = data.name || "My First Agent"
-        const selectedSkills = data.skills || []
-        
-        // Build skills object from selected skills
-        const skills: Record<string, boolean> = {
-          messaging: selectedSkills.includes("messaging"),
-          calendar: selectedSkills.includes("calendar"),
-          slack: selectedSkills.includes("marketing"),
-          telegram: selectedSkills.includes("messaging"),
-          discord: selectedSkills.includes("messaging"),
-          content: selectedSkills.includes("content"),
-          seo: selectedSkills.includes("seo"),
-          marketing: selectedSkills.includes("marketing"),
-          support: selectedSkills.includes("support"),
-          data: selectedSkills.includes("data"),
-          custom: selectedSkills.includes("custom")
-        }
         
         const agent = await prisma.agent.create({
           data: {
             name: agentName,
-            status: "active",
+            status: "pending",
             userId: user.id,
-            skills
+            skills: {
+              messaging: true,
+              calendar: false,
+              slack: false,
+              telegram: false
+            }
           }
         })
 
         // Generate API key for the user
         const apiKey = generateApiKey()
+        
+        // Store API key (in a real app, you'd hash it and store securely)
+        // For now, we'll just return it to the user to save
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { 
+            // In production, hash this!
+            // For now we store plain for demo purposes
+          }
+        })
 
         return NextResponse.json({ 
           success: true, 
@@ -69,6 +68,7 @@ export async function POST(request: Request) {
 
       case "complete-onboarding": {
         // Mark onboarding as complete
+        // Add a custom field or use session data
         return NextResponse.json({ success: true })
       }
 
