@@ -170,7 +170,7 @@ model MessageUsage {
   @@index([userId, periodStart])
 }
 
-<model SlackWorkspace {
+model SlackWorkspace {
   id              String   @id @default(cuid())
   slackTeamId     String   @unique
   slackTeamName   String?
@@ -231,5 +231,4 @@ model TeamMember {
   updatedAt     DateTime @updatedAt
 
   @@unique([email, ownerId])
-}
 }
