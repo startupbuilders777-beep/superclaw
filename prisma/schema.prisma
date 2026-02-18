@@ -167,3 +167,38 @@ model MessageUsage {
 
   @@index([userId, periodStart])
 }
+
+// Team roles
+enum TeamRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+// Team member model for agency tier
+model TeamMember {
+  id            String   @id @default(cuid())
+  email         String
+  name          String?
+  role          TeamRole @default(VIEWER)
+  
+  // Invitation status
+  status        String   @default("pending") // pending, active, declined
+  invitationToken String?
+  invitedAt     DateTime @default(now())
+  acceptedAt    DateTime?
+  
+  // User reference (if accepted)
+  userId        String?
+  
+  // Who invited this member
+  invitedById   String
+  
+  // Agency/team owner
+  ownerId       String
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([email, ownerId])
+}
