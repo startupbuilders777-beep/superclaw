@@ -21,6 +21,7 @@
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^5.22.0",
     "@stripe/stripe-js": "^8.7.0",
+    "bcrypt": "^6.0.0",
     "nanoid": "^5.1.6",
     "next": "^15.5.12",
     "next-auth": "5.0.0-beta.30",
@@ -31,6 +32,7 @@
     "stripe": "^20.3.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^25.2.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
