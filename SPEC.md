@@ -2,11 +2,11 @@
 
 ## Vision
 
-**"AI Agents for Everyone"**
+**"Zero setup AI agents for marketers, builders, designers"**
 
-The simplest way for non-technical users to get their own AI agent. Sign up via Telegram/Discord → Agent instantly provisioned → Configure skills → Agent works.
+The simplest way for non-technical users to get their own AI agent. No SSH, no VM, no technical setup. Just sign up → Pick skills → Agent works 24/7.
 
-**TikTok-friendly**: "Your personal AI worker in 30 seconds"
+**TikTok-friendly**: "Your personal AI employee in 30 seconds — $9/month"
 
 ---
 
