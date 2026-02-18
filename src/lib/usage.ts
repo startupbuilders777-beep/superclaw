@@ -176,8 +176,8 @@ export function calculateOverageCharge(additionalMessages: number): number {
 export function getTierMessageLimit(tier: string): number {
   const limits: Record<string, number> = {
     FREE: 100,
-    STARTER: 500,
-    PRO: -1, // unlimited
+    STARTER: 5000,
+    PRO: 50000, // 50k messages
     AGENCY: -1, // unlimited
   }
   return limits[tier] ?? 0
