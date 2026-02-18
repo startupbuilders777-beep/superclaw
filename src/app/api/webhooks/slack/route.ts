@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
 
           if (agents.length > 0) {
             const agentList = agents
-              .map((a) => `• ${a.name} - ${a.status}`)
+              .map((a: any) => `• ${a.name} - ${a.status}`)
               .join("\n")
             responseText = "Your Agents:"
             responseBlocks = [
