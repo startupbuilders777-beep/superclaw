@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { hashPassword } from "@/lib/auth/password"
+import { isDatabaseConfigured } from "@/lib/env"
 
 export async function POST(request: Request) {
+  // First check if database is configured
+  if (!isDatabaseConfigured()) {
+    console.error("Registration failed: DATABASE_URL not configured")
+    return NextResponse.json(
+      { error: "Service configuration error. Please contact support." },
+      { status: 503 }
+    )
+  }
+
   try {
     const { email, password, name } = await request.json()
 
@@ -44,16 +54,21 @@ export async function POST(request: Request) {
     // Provide more specific error messages for common issues
     const errorMessage = error instanceof Error ? error.message : String(error)
     
-    if (errorMessage.includes("database") || errorMessage.includes("DATABASE_URL")) {
-      return NextResponse.json(
-        { error: "Database connection error. Please try again later." },
-        { status: 503 }
-      )
-    }
+    // Check for various database connection error patterns
+    const isDbError = 
+      errorMessage.includes("database") ||
+      errorMessage.includes("DATABASE_URL") ||
+      errorMessage.includes("Prisma") ||
+      errorMessage.includes("prisma") ||
+      errorMessage.includes("connection") ||
+      errorMessage.includes("ECONNREFUSED") ||
+      errorMessage.includes("P1001") ||
+      errorMessage.includes("P1002")
     
-    if (errorMessage.includes("Prisma") || errorMessage.includes("prisma")) {
+    if (isDbError) {
+      console.error("Database connection error detected:", errorMessage)
       return NextResponse.json(
-        { error: "Database error. Please try again later." },
+        { error: "Database temporarily unavailable. Please try again later." },
         { status: 503 }
       )
     }
