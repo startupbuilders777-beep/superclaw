@@ -186,7 +186,7 @@ export default function AgentsPage() {
         <div className="bg-gray-800 rounded-lg border border-gray-700">
           {agents.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-gray-400 mb-4">You haven't created any agents yet.</p>
+              <p className="text-gray-400 mb-4">You haven&apos;t created any agents yet.</p>
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors"
