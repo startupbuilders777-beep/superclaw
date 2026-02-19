@@ -1,7 +1,29 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
 import { hashPassword } from "@/lib/auth/password"
 import { isDatabaseConfigured } from "@/lib/env"
+import { PrismaClient } from "@prisma/client"
+
+// Lazy initialization of Prisma client - only create when DATABASE_URL is confirmed
+// This prevents Prisma from throwing during module load when DATABASE_URL is missing
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+function getPrismaClient() {
+  if (globalForPrisma.prisma) {
+    return globalForPrisma.prisma;
+  }
+  
+  const client = new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+  });
+  
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = client;
+  }
+  
+  return client;
+}
 
 // Log env status on module load for debugging
 console.log("[register] DATABASE_URL set:", !!process.env.DATABASE_URL)
@@ -30,6 +52,7 @@ export async function POST(request: Request) {
       )
     }
 
+    const prisma = getPrismaClient()
     const existingUser = await prisma.user.findUnique({
       where: { email },
     })
