@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface Agent {
   id: string
   name: string
+  description: string
   status: string
   healthStatus: string | null
   skills: Record<string, boolean> | null
@@ -19,8 +21,14 @@ export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingAgent, setEditingAgent] = useState<Agent | null>(null)
   const [newAgentName, setNewAgentName] = useState("")
+  const [newAgentDescription, setNewAgentDescription] = useState("")
+  const [editAgentName, setEditAgentName] = useState("")
+  const [editAgentDescription, setEditAgentDescription] = useState("")
   const [creating, setCreating] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<Record<string, boolean>>({
     messaging: true,
     discord: false,
@@ -54,18 +62,22 @@ export default function AgentsPage() {
     
     setCreating(true)
     try {
-      const res = await fetch("/api/agents/spawn", {
+      // First create the agent
+      const res = await fetch("/api/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newAgentName,
+          description: newAgentDescription,
           skills: selectedSkills,
         }),
       })
 
       if (res.ok) {
+        const data = await res.json()
         setShowCreateModal(false)
         setNewAgentName("")
+        setNewAgentDescription("")
         fetchAgents()
       } else {
         const data = await res.json()
@@ -76,6 +88,43 @@ export default function AgentsPage() {
       alert("Failed to create agent")
     } finally {
       setCreating(false)
+    }
+  }
+
+  const handleEditAgent = (agent: Agent) => {
+    setEditingAgent(agent)
+    setEditAgentName(agent.name)
+    setEditAgentDescription(agent.description || "")
+    setShowEditModal(true)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingAgent || !editAgentName.trim()) return
+    
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/agents/${editingAgent.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editAgentName,
+          description: editAgentDescription,
+        }),
+      })
+
+      if (res.ok) {
+        setShowEditModal(false)
+        setEditingAgent(null)
+        fetchAgents()
+      } else {
+        const data = await res.json()
+        alert(data.error || "Failed to update agent")
+      }
+    } catch (error) {
+      console.error("Failed to update agent:", error)
+      alert("Failed to update agent")
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -268,6 +317,12 @@ export default function AgentsPage() {
                               </button>
                             )}
                             <button
+                              onClick={() => handleEditAgent(agent)}
+                              className="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded text-white text-sm transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
                               onClick={() => handleDeleteAgent(agent.id)}
                               className="px-3 py-1.5 bg-gray-700 hover:bg-red-600 rounded text-white text-sm transition-colors"
                             >
@@ -302,6 +357,17 @@ export default function AgentsPage() {
               />
             </div>
 
+            <div className="mb-4">
+              <label className="block text-gray-400 text-sm mb-2">Description (optional)</label>
+              <textarea
+                value={newAgentDescription}
+                onChange={(e) => setNewAgentDescription(e.target.value)}
+                rows={2}
+                placeholder="What is this agent for?"
+                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 resize-none"
+              />
+            </div>
+
             <div className="mb-6">
               <label className="block text-gray-400 text-sm mb-2">Initial Skills</label>
               <div className="grid grid-cols-2 gap-2">
@@ -332,6 +398,52 @@ export default function AgentsPage() {
                 className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creating ? "Creating..." : "Create Agent"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && editingAgent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
+            <h2 className="text-xl font-semibold text-white mb-4">Edit Agent</h2>
+            
+            <div className="mb-4">
+              <label className="block text-gray-400 text-sm mb-2">Agent Name</label>
+              <input
+                type="text"
+                value={editAgentName}
+                onChange={(e) => setEditAgentName(e.target.value)}
+                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-gray-400 text-sm mb-2">Description</label>
+              <textarea
+                value={editAgentDescription}
+                onChange={(e) => setEditAgentDescription(e.target.value)}
+                rows={3}
+                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 resize-none"
+                placeholder="What is this agent for?"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={saving || !editAgentName.trim()}
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>

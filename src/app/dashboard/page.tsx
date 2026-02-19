@@ -133,17 +133,17 @@ export default async function DashboardPage() {
         <div className="bg-gray-800 rounded-lg border border-gray-700 mb-8">
           <div className="p-6 border-b border-gray-700 flex justify-between items-center">
             <h2 className="text-xl font-semibold text-white">Your Agents</h2>
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors text-sm">
+            <Link href="/dashboard/agents" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors text-sm">
               + Create Agent
-            </button>
+            </Link>
           </div>
           
           {user.agents.length === 0 ? (
             <div className="p-6 text-center">
               <p className="text-gray-400 mb-4">You haven&apos;t created any agents yet.</p>
-              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors">
+              <Link href="/dashboard/agents" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors">
                 Create Your First Agent
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -191,12 +191,12 @@ export default async function DashboardPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex gap-2">
-                            <button className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm transition-colors">
+                            <Link href="/dashboard/agents" className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm transition-colors">
                               Configure
-                            </button>
-                            <button className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm transition-colors">
+                            </Link>
+                            <Link href="/dashboard/agents" className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm transition-colors">
                               {agent.status === "active" ? "Stop" : "Start"}
-                            </button>
+                            </Link>
                           </div>
                         </td>
                       </tr>
