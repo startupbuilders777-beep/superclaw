@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
 
+
+export const dynamic = 'force-dynamic'
 export default async function HomePage() {
   return (
     <div className="min-h-screen bg-gray-900">
