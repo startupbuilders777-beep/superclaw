@@ -3,12 +3,19 @@ import { prisma } from "@/lib/prisma"
 import { hashPassword } from "@/lib/auth/password"
 import { isDatabaseConfigured } from "@/lib/env"
 
+// Log env status on module load for debugging
+console.log("[register] DATABASE_URL set:", !!process.env.DATABASE_URL)
+console.log("[register] NODE_ENV:", process.env.NODE_ENV)
+
 export async function POST(request: Request) {
-  // First check if database is configured
-  if (!isDatabaseConfigured()) {
+  // First check if database is configured - do this BEFORE any prisma operations
+  const dbConfigured = isDatabaseConfigured()
+  console.log("[register] isDatabaseConfigured:", dbConfigured)
+  
+  if (!dbConfigured) {
     console.error("Registration failed: DATABASE_URL not configured")
     return NextResponse.json(
-      { error: "Service configuration error. Please contact support." },
+      { error: "Service temporarily unavailable. Please try again later.", code: "DB_NOT_CONFIGURED" },
       { status: 503 }
     )
   }
