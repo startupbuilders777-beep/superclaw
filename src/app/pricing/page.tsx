@@ -1,19 +1,16 @@
-import { loadStripe } from "@stripe/stripe-js"
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
-import prisma from "@/lib/prisma"
 import Link from "next/link"
+import { auth } from "@/lib/auth"
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+// Force dynamic rendering
+export const dynamic = "force-dynamic"
 
-// Plan configuration
+// Plan configuration - aligned with homepage
 const plans = [
   {
     tier: "FREE",
     name: "Free",
     description: "Perfect for getting started",
     price: 0,
-    priceId: null,
     features: [
       "1 AI Agent",
       "500 messages/month",
@@ -27,14 +24,13 @@ const plans = [
     tier: "STARTER",
     name: "Starter",
     description: "For individuals and small projects",
-    price: 29,
-    priceId: process.env.STRIPE_STARTER_PRICE_ID,
+    price: 9,
     features: [
-      "3 AI Agents",
-      "5,000 messages/month",
-      "Advanced analytics",
-      "Priority email support",
-      "API access",
+      "1 AI Agent",
+      "500 messages/day",
+      "Basic analytics",
+      "Email support",
+      "Community support",
     ],
     cta: "Get Started",
     popular: false,
@@ -43,16 +39,14 @@ const plans = [
     tier: "PRO",
     name: "Pro",
     description: "For professionals and teams",
-    price: 79,
-    priceId: process.env.STRIPE_PRO_PRICE_ID,
+    price: 29,
     features: [
-      "10 AI Agents",
+      "3 AI Agents",
       "Unlimited messages",
       "Advanced analytics",
       "Priority support",
       "API access",
-      "Custom integrations",
-      "Webhook notifications",
+      "Custom prompts",
     ],
     cta: "Get Pro",
     popular: true,
@@ -61,82 +55,41 @@ const plans = [
     tier: "AGENCY",
     name: "Agency",
     description: "For agencies and enterprises",
-    price: 199,
-    priceId: process.env.STRIPE_AGENCY_PRICE_ID,
+    price: 99,
     features: [
-      "Unlimited AI Agents",
+      "10 AI Agents",
       "Unlimited messages",
       "Enterprise analytics",
-      "24/7 phone support",
+      "24/7 priority support",
       "API access",
-      "Custom integrations",
-      "Webhooks",
-      "Dedicated account manager",
-      "SLA guarantee",
+      "Custom prompts",
+      "Team management",
+      "Webhook notifications",
     ],
-    cta: "Contact Sales",
+    cta: "Get Agency",
     popular: false,
   },
 ]
-
-async function handleCheckout(tier: string, priceId: string | null) {
-  "use server"
-  
-  const session = await auth()
-  if (!session?.user) {
-    redirect("/login")
-  }
-
-  // Get user from database
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email! },
-  })
-
-  if (!user) {
-    redirect("/login")
-  }
-
-  // Call checkout API
-  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/checkout`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      tier,
-      userId: user.id,
-      successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
-      cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?canceled=true`,
-    }),
-  })
-
-  const { url, error } = await response.json()
-
-  if (error) {
-    console.error("Checkout error:", error)
-    return
-  }
-
-  if (url) {
-    redirect(url)
-  }
-}
 
 export default async function PricingPage() {
   const session = await auth()
   
   let userTier = "FREE"
-  let userSubscriptionStatus = null
   
+  // Only fetch user tier if session exists - simplified to avoid build issues
   if (session?.user?.email) {
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { subscriptionTier: true, subscriptionStatus: true },
-    })
-    
-    if (user) {
-      userTier = user.subscriptionTier
-      userSubscriptionStatus = user.subscriptionStatus
+    try {
+      const { default: prisma } = await import("@/lib/prisma")
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { subscriptionTier: true },
+      })
+      
+      if (user) {
+        userTier = user.subscriptionTier
+      }
+    } catch (e) {
+      console.error("Error fetching user tier:", e)
     }
   }
 
@@ -255,19 +208,17 @@ export default async function PricingPage() {
                   >
                     Current Plan
                   </button>
-                ) : plan.priceId ? (
-                  <form action={handleCheckout.bind(null, plan.tier, plan.priceId)}>
-                    <button
-                      type="submit"
-                      className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                        plan.popular
-                          ? "bg-blue-600 hover:bg-blue-700 text-white"
-                          : "bg-gray-700 hover:bg-gray-600 text-white"
-                      }`}
-                    >
-                      {plan.cta}
-                    </button>
-                  </form>
+                ) : plan.price > 0 ? (
+                  <Link
+                    href="/register"
+                    className={`w-full py-3 px-4 rounded-lg font-medium text-center transition-colors block ${
+                      plan.popular
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-gray-700 hover:bg-gray-600 text-white"
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
                 ) : (
                   <Link
                     href="/register"
