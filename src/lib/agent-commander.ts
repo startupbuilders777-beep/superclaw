@@ -18,7 +18,7 @@ const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
 
 // Context for message processing
 interface MessageContext {
-  source: 'telegram' | 'discord'
+  source: 'telegram' | 'discord' | 'api'
   sourceId: string
   userId: string
 }
