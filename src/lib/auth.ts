@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import Credentials from "next-auth/providers/credentials"
+import Discord from "next-auth/providers/discord"
 import { prisma } from "@/lib/prisma"
 
 import type { NextAuthConfig } from "next-auth"
@@ -15,6 +16,10 @@ export const authConfig: NextAuthConfig = {
     signIn: "/login",
   },
   providers: [
+    Discord({
+      clientId: process.env.DISCORD_CLIENT_ID,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    }),
     Credentials({
       name: "credentials",
       credentials: {
