@@ -116,6 +116,7 @@ model Agent {
   scheduleCron    String?  // custom cron expression
   id              String   @id @default(cuid())
   name            String
+  description     String?  // Agent description
   status          String   @default("pending") // pending, active, stopped
   
   // Skills configuration (JSON)
