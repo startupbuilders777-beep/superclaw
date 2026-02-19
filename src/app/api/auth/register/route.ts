@@ -38,8 +38,26 @@ export async function POST(request: Request) {
       { id: user.id, email: user.email, name: user.name },
       { status: 201 }
     )
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Registration error:", error)
+    
+    // Provide more specific error messages for common issues
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    
+    if (errorMessage.includes("database") || errorMessage.includes("DATABASE_URL")) {
+      return NextResponse.json(
+        { error: "Database connection error. Please try again later." },
+        { status: 503 }
+      )
+    }
+    
+    if (errorMessage.includes("Prisma") || errorMessage.includes("prisma")) {
+      return NextResponse.json(
+        { error: "Database error. Please try again later." },
+        { status: 503 }
+      )
+    }
+    
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
