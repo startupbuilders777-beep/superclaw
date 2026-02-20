@@ -45,15 +45,84 @@ export default async function HomePage() {
             Your personal AI employee that works 24/7. Pick skills, configure, and watch it work.
           </p>
           
-          {/* Demo placeholder - animated gradient */}
-          <div className="relative max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden border border-gray-700 bg-gray-800">
-            <div className="aspect-video flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-blue-600/20 animate-pulse"></div>
-              <div className="relative z-10 text-center">
-                <div className="text-6xl mb-4">🤖</div>
-                <p className="text-gray-300 text-lg">AI Agent Demo</p>
-                <p className="text-gray-500 text-sm mt-2">[Demo video coming soon]</p>
+          {/* Interactive Demo - Animated Agent Creation Flow */}
+          <div className="relative max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden border border-gray-700 bg-gray-800 shadow-2xl">
+            <div className="aspect-video flex items-center justify-center relative overflow-hidden">
+              {/* Animated Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20"></div>
+              
+              {/* Demo Content */}
+              <div className="relative z-10 w-full max-w-lg p-6">
+                {/* Step 1: Create Agent */}
+                <div className="bg-gray-800/90 backdrop-blur rounded-xl p-4 mb-4 border border-gray-700 transform transition-all duration-500 hover:scale-105">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-lg">✨</span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Create Your Agent</p>
+                      <p className="text-gray-400 text-sm">Name your agent & select skills</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Arrow */}
+                <div className="flex justify-center mb-4">
+                  <svg className="w-6 h-6 text-blue-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </div>
+                
+                {/* Step 2: Select Skills */}
+                <div className="bg-gray-800/90 backdrop-blur rounded-xl p-4 mb-4 border border-gray-600 transform transition-all duration-500 hover:scale-105">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-lg">🎯</span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Pick Skills</p>
+                      <p className="text-gray-400 text-sm">Content, SEO, Marketing & more</p>
+                    </div>
+                  </div>
+                  {/* Skill Tags */}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <span className="px-2 py-1 bg-blue-600/20 text-blue-300 text-xs rounded-full">📝 Content</span>
+                    <span className="px-2 py-1 bg-green-600/20 text-green-300 text-xs rounded-full">🔍 SEO</span>
+                    <span className="px-2 py-1 bg-pink-600/20 text-pink-300 text-xs rounded-full">📢 Marketing</span>
+                  </div>
+                </div>
+                
+                {/* Arrow */}
+                <div className="flex justify-center mb-4">
+                  <svg className="w-6 h-6 text-purple-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
+                </div>
+                
+                {/* Step 3: Agent Ready */}
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 border border-blue-500 transform transition-all duration-500 hover:scale-105">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-lg">🤖</span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Agent Ready in 60s!</p>
+                      <p className="text-blue-100 text-sm">Works 24/7 on Discord & Telegram</p>
+                    </div>
+                  </div>
+                </div>
               </div>
+              
+              {/* Corner Decorations */}
+              <div className="absolute top-4 left-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl"></div>
+              <div className="absolute bottom-4 right-4 w-20 h-20 bg-purple-500/10 rounded-full blur-xl"></div>
+            </div>
+            
+            {/* Demo Caption */}
+            <div className="bg-gray-900/50 px-4 py-3 text-center border-t border-gray-700">
+              <p className="text-gray-400 text-sm">
+                <span className="text-blue-400 font-medium">3 simple steps</span> — No coding required
+              </p>
             </div>
           </div>
 
