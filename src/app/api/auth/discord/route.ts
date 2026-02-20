@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getNextAuthUrl } from "@/lib/auth-url";
 
 // Discord OAuth configuration
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 // Redirect to Discord OAuth
 export async function GET(req: NextRequest) {
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     "email",
   ].join(" ");
 
-  const redirectUri = `${NEXTAUTH_URL}/api/auth/discord/callback`;
+  const redirectUri = `${getNextAuthUrl()}/api/auth/discord/callback`;
   const state = userId || "anonymous";
 
   const discordAuthUrl = new URL("https://discord.com/oauth2/authorize");

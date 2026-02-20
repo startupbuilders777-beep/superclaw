@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getNextAuthUrl } from "@/lib/auth-url";
 
 // Slack OAuth configuration
 const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
 const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 // Redirect to Slack OAuth
 export async function GET(req: NextRequest) {
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     "incoming-webhook",
   ].join(",");
 
-  const redirectUri = `${NEXTAUTH_URL}/api/auth/slack/callback`;
+  const redirectUri = `${getNextAuthUrl()}/api/auth/slack/callback`;
   const state = userId || "anonymous";
 
   const slackAuthUrl = new URL("https://slack.com/oauth/v2/authorize");
