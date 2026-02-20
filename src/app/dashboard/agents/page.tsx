@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { AGENT_TEMPLATES, getDefaultSkills, type AgentTemplate } from "@/lib/agent-templates"
 
 interface Agent {
   id: string
@@ -29,15 +30,9 @@ export default function AgentsPage() {
   const [editAgentDescription, setEditAgentDescription] = useState("")
   const [creating, setCreating] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [selectedSkills, setSelectedSkills] = useState<Record<string, boolean>>({
-    messaging: true,
-    discord: false,
-    telegram: false,
-    slack: false,
-    content: false,
-    seo: false,
-    marketing: false,
-  })
+  const [selectedSkills, setSelectedSkills] = useState<Record<string, boolean>>(getDefaultSkills())
+  const [selectedTemplate, setSelectedTemplate] = useState<AgentTemplate | null>(null)
+  const [showTemplates, setShowTemplates] = useState(true)
 
   useEffect(() => {
     fetchAgents()
@@ -57,12 +52,18 @@ export default function AgentsPage() {
     }
   }
 
+  const handleSelectTemplate = (template: AgentTemplate) => {
+    setSelectedTemplate(template)
+    setSelectedSkills(template.skills)
+    setNewAgentName(template.name)
+    setShowTemplates(false)
+  }
+
   const handleCreateAgent = async () => {
     if (!newAgentName.trim()) return
     
     setCreating(true)
     try {
-      // First create the agent
       const res = await fetch("/api/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,10 +75,12 @@ export default function AgentsPage() {
       })
 
       if (res.ok) {
-        const data = await res.json()
         setShowCreateModal(false)
+        setShowTemplates(true)
+        setSelectedTemplate(null)
         setNewAgentName("")
         setNewAgentDescription("")
+        setSelectedSkills(getDefaultSkills())
         fetchAgents()
       } else {
         const data = await res.json()
@@ -200,6 +203,30 @@ export default function AgentsPage() {
     calendar: "Calendar",
     support: "Support",
     data: "Data",
+    auto_reply: "Auto-Reply",
+    faq_answers: "FAQ Answers",
+    ticket_routing: "Ticket Routing",
+    write_posts: "Write Posts",
+    schedule_content: "Schedule Content",
+    repurpose_content: "Repurpose Content",
+    keyword_research: "Keyword Research",
+    onpage_optimization: "On-Page Optimization",
+    backlink_tracking: "Backlink Tracking",
+    ad_copy: "Ad Copy",
+    email_sequences: "Email Sequences",
+    landing_pages: "Landing Pages",
+    query_data: "Query Data",
+    generate_reports: "Generate Reports",
+    visualizations: "Visualizations",
+  }
+
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false)
+    setShowTemplates(true)
+    setSelectedTemplate(null)
+    setNewAgentName("")
+    setNewAgentDescription("")
+    setSelectedSkills(getDefaultSkills())
   }
 
   if (loading) {
@@ -343,63 +370,135 @@ export default function AgentsPage() {
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700">
-            <h2 className="text-xl font-semibold text-white mb-4">Create New Agent</h2>
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl border border-gray-700 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              {showTemplates ? "Choose a Template" : "Create New Agent"}
+            </h2>
             
-            <div className="mb-4">
-              <label className="block text-gray-400 text-sm mb-2">Agent Name</label>
-              <input
-                type="text"
-                value={newAgentName}
-                onChange={(e) => setNewAgentName(e.target.value)}
-                placeholder="My AI Agent"
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-400 text-sm mb-2">Description (optional)</label>
-              <textarea
-                value={newAgentDescription}
-                onChange={(e) => setNewAgentDescription(e.target.value)}
-                rows={2}
-                placeholder="What is this agent for?"
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 resize-none"
-              />
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-gray-400 text-sm mb-2">Initial Skills</label>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(selectedSkills).map(([key, value]) => (
-                  <label key={key} className="flex items-center gap-2 text-gray-300">
-                    <input
-                      type="checkbox"
-                      checked={value}
-                      onChange={(e) => setSelectedSkills({ ...selectedSkills, [key]: e.target.checked })}
-                      className="rounded bg-gray-700 border-gray-600"
-                    />
-                    {skillLabels[key] || key}
-                  </label>
-                ))}
+            {/* Template Selection */}
+            {showTemplates && (
+              <div className="mb-6">
+                <p className="text-gray-400 text-sm mb-4">
+                  Start with a pre-built template or create a custom agent from scratch.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {AGENT_TEMPLATES.map((template) => (
+                    <button
+                      key={template.id}
+                      onClick={() => handleSelectTemplate(template)}
+                      className="p-4 bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-blue-500 rounded-lg text-left transition-colors"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-2xl">{template.icon}</span>
+                        <span className="text-white font-medium">{template.name}</span>
+                      </div>
+                      <p className="text-gray-400 text-sm">{template.description}</p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {Object.entries(template.skills).filter(([_, v]) => v).slice(0, 3).map(([key]) => (
+                          <span key={key} className="px-2 py-0.5 bg-gray-600 rounded text-xs text-gray-300">
+                            {skillLabels[key] || key}
+                          </span>
+                        ))}
+                        {Object.entries(template.skills).filter(([_, v]) => v).length > 3 && (
+                          <span className="px-2 py-0.5 bg-gray-600 rounded text-xs text-gray-300">
+                            +{Object.entries(template.skills).filter(([_, v]) => v).length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => {
+                    setShowTemplates(false)
+                    setSelectedTemplate(null)
+                    setNewAgentName("")
+                    setSelectedSkills(getDefaultSkills())
+                  }}
+                  className="mt-4 w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg text-white font-medium transition-colors"
+                >
+                  Start from Scratch
+                </button>
               </div>
-            </div>
+            )}
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateAgent}
-                disabled={creating || !newAgentName.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {creating ? "Creating..." : "Create Agent"}
-              </button>
-            </div>
+            {/* Agent Form (after template selected or scratch) */}
+            {!showTemplates && (
+              <>
+                {selectedTemplate && (
+                  <div className="mb-4 p-3 bg-blue-900/30 border border-blue-700 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{selectedTemplate.icon}</span>
+                      <span className="text-blue-300 font-medium">Using template: {selectedTemplate.name}</span>
+                      <button
+                        onClick={() => {
+                          setShowTemplates(true)
+                          setSelectedTemplate(null)
+                        }}
+                        className="ml-auto text-sm text-gray-400 hover:text-white"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 text-sm mb-2">Agent Name</label>
+                  <input
+                    type="text"
+                    value={newAgentName}
+                    onChange={(e) => setNewAgentName(e.target.value)}
+                    placeholder="My AI Agent"
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 text-sm mb-2">Description (optional)</label>
+                  <textarea
+                    value={newAgentDescription}
+                    onChange={(e) => setNewAgentDescription(e.target.value)}
+                    rows={2}
+                    placeholder="What is this agent for?"
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 resize-none"
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-gray-400 text-sm mb-2">Initial Skills</label>
+                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 bg-gray-900/50 rounded-lg">
+                    {Object.entries(selectedSkills).map(([key, value]) => (
+                      <label key={key} className="flex items-center gap-2 text-gray-300">
+                        <input
+                          type="checkbox"
+                          checked={value}
+                          onChange={(e) => setSelectedSkills({ ...selectedSkills, [key]: e.target.checked })}
+                          className="rounded bg-gray-700 border-gray-600"
+                        />
+                        {skillLabels[key] || key}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCloseCreateModal}
+                    className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreateAgent}
+                    disabled={creating || !newAgentName.trim()}
+                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {creating ? "Creating..." : "Create Agent"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
