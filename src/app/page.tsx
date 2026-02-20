@@ -72,6 +72,25 @@ export default async function HomePage() {
             </Link>
           </div>
 
+          {/* Compact Pricing Tiers - Above the Fold */}
+          <div className="flex justify-center gap-6 mt-10 flex-wrap">
+            <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-6 py-4">
+              <p className="text-gray-400 text-sm mb-1">Starter</p>
+              <p className="text-2xl font-bold text-white">$9<span className="text-gray-400 text-sm font-normal">/mo</span></p>
+              <p className="text-gray-500 text-xs mt-1">1 agent, 500 msgs</p>
+            </div>
+            <div className="bg-gray-800/80 border-2 border-blue-500 rounded-xl px-6 py-4">
+              <p className="text-blue-400 text-sm font-medium mb-1">Most Popular</p>
+              <p className="text-2xl font-bold text-white">$29<span className="text-gray-400 text-sm font-normal">/mo</span></p>
+              <p className="text-gray-500 text-xs mt-1">3 agents, unlimited</p>
+            </div>
+            <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-6 py-4">
+              <p className="text-gray-400 text-sm mb-1">Agency</p>
+              <p className="text-2xl font-bold text-white">$99<span className="text-gray-400 text-sm font-normal">/mo</span></p>
+              <p className="text-gray-500 text-xs mt-1">10 agents, priority</p>
+            </div>
+          </div>
+
           {/* Trust badges */}
           <div className="flex flex-wrap justify-center gap-8 mt-12 text-gray-400 text-sm">
             <div className="flex items-center gap-2">
