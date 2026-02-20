@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getNextAuthUrl } from "@/lib/auth-url";
 import crypto from "crypto";
 
 // Telegram Bot configuration
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 // Verify Telegram Webhook data using HMAC-SHA256
 function verifyTelegramData(initData: string): boolean {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getNextAuthUrl } from "@/lib/auth-url";
 
 // Discord OAuth configuration
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 export async function GET(req: NextRequest) {
   if (!DISCORD_CLIENT_ID || !DISCORD_CLIENT_SECRET) {
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const state = searchParams.get("state"); // userId if provided
 
   if (!code) {
-    return NextResponse.redirect(`${NEXTAUTH_URL}/login?error=no_code`);
+    return NextResponse.redirect(`${getNextAuthUrl()}/login?error=no_code`);
   }
 
   try {
@@ -34,13 +34,13 @@ export async function GET(req: NextRequest) {
         client_secret: DISCORD_CLIENT_SECRET,
         grant_type: "authorization_code",
         code,
-        redirect_uri: `${NEXTAUTH_URL}/api/auth/discord/callback`,
+        redirect_uri: `${getNextAuthUrl()}/api/auth/discord/callback`,
       }),
     });
 
     if (!tokenResponse.ok) {
       console.error("Discord token exchange failed:", await tokenResponse.text());
-      return NextResponse.redirect(`${NEXTAUTH_URL}/login?error=token_exchange_failed`);
+      return NextResponse.redirect(`${getNextAuthUrl()}/login?error=token_exchange_failed`);
     }
 
     const tokenData = await tokenResponse.json();
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 
     if (!userResponse.ok) {
       console.error("Discord user fetch failed:", await userResponse.text());
-      return NextResponse.redirect(`${NEXTAUTH_URL}/login?error=user_fetch_failed`);
+      return NextResponse.redirect(`${getNextAuthUrl()}/login?error=user_fetch_failed`);
     }
 
     const discordUser = await userResponse.json();
@@ -91,17 +91,17 @@ export async function GET(req: NextRequest) {
     }
 
     if (!user) {
-      return NextResponse.redirect(`${NEXTAUTH_URL}/login?error=user_creation_failed`);
+      return NextResponse.redirect(`${getNextAuthUrl()}/login?error=user_creation_failed`);
     }
 
     // Redirect to dashboard or onboarding with user info
     const redirectUrl = state && state !== "anonymous" 
-      ? `${NEXTAUTH_URL}/dashboard?oauth=discord`
-      : `${NEXTAUTH_URL}/onboarding?oauth=discord&userId=${user.id}`;
+      ? `${getNextAuthUrl()}/dashboard?oauth=discord`
+      : `${getNextAuthUrl()}/onboarding?oauth=discord&userId=${user.id}`;
 
     return NextResponse.redirect(redirectUrl);
   } catch (error) {
     console.error("Discord OAuth error:", error);
-    return NextResponse.redirect(`${NEXTAUTH_URL}/login?error=oauth_failed`);
+    return NextResponse.redirect(`${getNextAuthUrl()}/login?error=oauth_failed`);
   }
 }

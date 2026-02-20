@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getNextAuthUrl } from "@/lib/auth-url";
 
 const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
 const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 // Handle Slack OAuth callback
 export async function GET(req: NextRequest) {
@@ -21,11 +21,11 @@ export async function GET(req: NextRequest) {
 
   if (error) {
     console.error("Slack OAuth error:", error);
-    return NextResponse.redirect(`${NEXTAUTH_URL}/dashboard?error=slack_auth_failed`);
+    return NextResponse.redirect(`${getNextAuthUrl()}/dashboard?error=slack_auth_failed`);
   }
 
   if (!code) {
-    return NextResponse.redirect(`${NEXTAUTH_URL}/dashboard?error=missing_code`);
+    return NextResponse.redirect(`${getNextAuthUrl()}/dashboard?error=missing_code`);
   }
 
   try {
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
         client_id: SLACK_CLIENT_ID!,
         client_secret: SLACK_CLIENT_SECRET!,
         code,
-        redirect_uri: `${NEXTAUTH_URL}/api/auth/slack/callback`,
+        redirect_uri: `${getNextAuthUrl()}/api/auth/slack/callback`,
       }),
     });
 
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
     if (!tokenData.ok) {
       console.error("Slack token exchange failed:", tokenData);
-      return NextResponse.redirect(`${NEXTAUTH_URL}/dashboard?error=slack_token_failed`);
+      return NextResponse.redirect(`${getNextAuthUrl()}/dashboard?error=slack_token_failed`);
     }
 
     const {
@@ -90,9 +90,9 @@ export async function GET(req: NextRequest) {
     });
 
     // Redirect to dashboard with success
-    return NextResponse.redirect(`${NEXTAUTH_URL}/dashboard?success=slack_connected`);
+    return NextResponse.redirect(`${getNextAuthUrl()}/dashboard?success=slack_connected`);
   } catch (error) {
     console.error("Slack OAuth callback error:", error);
-    return NextResponse.redirect(`${NEXTAUTH_URL}/dashboard?error=slack_oauth_error`);
+    return NextResponse.redirect(`${getNextAuthUrl()}/dashboard?error=slack_oauth_error`);
   }
 }
