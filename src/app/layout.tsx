@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SuperClaw - Your AI Agent, Instant Setup",
-  description: "The simplest way for non-technical users to get their own AI agent.",
+  title: "SuperClaw - Create custom AI agents in 60 seconds - no coding required",
+  description: "The simplest way for non-technical users to get their own AI agent. Pick skills, configure, and watch it work.",
 };
 
 export default function RootLayout({
