@@ -33,8 +33,57 @@ export function validateEnvVars() {
 
 /**
  * Check if the database is configured and accessible
- * Returns true if DATABASE_URL is set (even if connection not tested)
+ * Returns true if DATABASE_URL is set to a valid production URL (not localhost)
+ * Returns false if:
+ *   - DATABASE_URL is not set
+ *   - DATABASE_URL is empty
+ *   - DATABASE_URL points to localhost (won't work in serverless/production)
  */
 export function isDatabaseConfigured(): boolean {
-  return !!process.env.DATABASE_URL && process.env.DATABASE_URL !== ''
+  const dbUrl = process.env.DATABASE_URL
+  
+  if (!dbUrl || dbUrl === '') {
+    return false
+  }
+  
+  // Check for localhost URLs - these won't work in Vercel serverless
+  if (dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1')) {
+    console.error('[env] DATABASE_URL points to localhost which will not work in production/serverless environments')
+    return false
+  }
+  
+  return true
+}
+
+/**
+ * Get database configuration status with detailed information
+ * Useful for debugging and providing specific error messages
+ */
+export function getDatabaseConfigStatus(): {
+  configured: boolean;
+  reason?: string;
+  urlPreview?: string;
+} {
+  const dbUrl = process.env.DATABASE_URL
+  
+  if (!dbUrl || dbUrl === '') {
+    return { 
+      configured: false, 
+      reason: 'DATABASE_URL is not set',
+      urlPreview: undefined
+    }
+  }
+  
+  if (dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1')) {
+    return { 
+      configured: false, 
+      reason: 'DATABASE_URL points to localhost - this will not work in production. Use a hosted database like Neon, Supabase, or Railway.',
+      urlPreview: dbUrl.replace(/\/\/.*:.*@/, '//***:***@') // Mask credentials
+    }
+  }
+  
+  return { 
+    configured: true,
+    urlPreview: dbUrl.replace(/\/\/.*:.*@/, '//***:***@')
+  }
 }

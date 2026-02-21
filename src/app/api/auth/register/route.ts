@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { hashPassword } from "@/lib/auth/password"
-import { isDatabaseConfigured } from "@/lib/env"
+import { isDatabaseConfigured, getDatabaseConfigStatus } from "@/lib/env"
 import { PrismaClient } from "@prisma/client"
 
 // Lazy initialization of Prisma client - only create when DATABASE_URL is confirmed
@@ -32,12 +32,27 @@ console.log("[register] NODE_ENV:", process.env.NODE_ENV)
 export async function POST(request: Request) {
   // First check if database is configured - do this BEFORE any prisma operations
   const dbConfigured = isDatabaseConfigured()
+  const dbStatus = getDatabaseConfigStatus()
   console.log("[register] isDatabaseConfigured:", dbConfigured)
+  console.log("[register] dbStatus:", JSON.stringify(dbStatus))
   
   if (!dbConfigured) {
-    console.error("Registration failed: DATABASE_URL not configured")
+    console.error("Registration failed: DATABASE_URL not properly configured")
+    
+    // Provide specific error message based on the issue
+    let errorMessage = "Service temporarily unavailable. Please try again later."
+    let errorCode = "DB_NOT_CONFIGURED"
+    
+    if (dbStatus.reason?.includes('localhost')) {
+      errorMessage = "Database configuration error: DATABASE_URL points to localhost. Please configure a production database (Neon, Supabase, or Railway) in Vercel project settings."
+      errorCode = "DB_LOCALHOST"
+    } else if (dbStatus.reason?.includes('not set')) {
+      errorMessage = "Database not configured. Please add DATABASE_URL to your Vercel project environment variables."
+      errorCode = "DB_MISSING"
+    }
+    
     return NextResponse.json(
-      { error: "Service temporarily unavailable. Please try again later.", code: "DB_NOT_CONFIGURED" },
+      { error: errorMessage, code: errorCode, details: dbStatus.reason },
       { status: 503 }
     )
   }
