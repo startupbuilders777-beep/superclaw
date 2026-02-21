@@ -350,6 +350,106 @@ export default async function HomePage() {
           </div>
         </section>
 
+
+        {/* FAQ Section */}
+        <section className="py-20 bg-gray-800/30">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 className="text-3xl font-bold text-white text-center mb-4">
+              Frequently Asked Questions
+            </h3>
+            <p className="text-gray-400 text-center mb-12">
+              Everything you need to know about SuperClaw
+            </p>
+            
+            <div className="space-y-4">
+              {/* FAQ 1 */}
+              <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+                <details className="group">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                    <span className="text-white font-medium">Do I need coding skills?</span>
+                    <span className="transition-transform group-open:rotate-180">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="px-6 pb-6 text-gray-400">
+                    No! SuperClaw is designed for non-technical users. Select skills, configure, and your agent is ready in 60 seconds. No coding required.
+                  </div>
+                </details>
+              </div>
+
+              {/* FAQ 2 */}
+              <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+                <details className="group">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                    <span className="text-white font-medium">How does it connect to Discord/Telegram?</span>
+                    <span className="transition-transform group-open:rotate-180">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="px-6 pb-6 text-gray-400">
+                    We handle all the OAuth setup. Just click Connect and authorize. Your agent will be ready to interact with you on your preferred platform immediately.
+                  </div>
+                </details>
+              </div>
+
+              {/* FAQ 3 */}
+              <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+                <details className="group">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                    <span className="text-white font-medium">What can the agents do?</span>
+                    <span className="transition-transform group-open:rotate-180">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="px-6 pb-6 text-gray-400">
+                    Agents can help with content writing, SEO, marketing, customer support, data analysis, and more. Choose from our pre-built skills or create custom prompts.
+                  </div>
+                </details>
+              </div>
+
+              {/* FAQ 4 */}
+              <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+                <details className="group">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                    <span className="text-white font-medium">Is there a free trial?</span>
+                    <span className="transition-transform group-open:rotate-180">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="px-6 pb-6 text-gray-400">
+                    Yes! Free tier includes 1 agent and 500 messages/month. No credit card required to start.
+                  </div>
+                </details>
+              </div>
+
+              {/* FAQ 5 */}
+              <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+                <details className="group">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                    <span className="text-white font-medium">Can I cancel anytime?</span>
+                    <span className="transition-transform group-open:rotate-180">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div className="px-6 pb-6 text-gray-400">
+                    Yes, cancel anytime from your dashboard. No hidden fees. No questions asked.
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Footer CTA */}
         <section className="py-20 bg-blue-600/10">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
