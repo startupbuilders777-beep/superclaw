@@ -45,72 +45,37 @@ export default async function HomePage() {
             Your personal AI employee that works 24/7. Pick skills, configure, and watch it work.
           </p>
           
-          {/* Interactive Demo - Animated Agent Creation Flow */}
+          {/* Demo Video Section - Replace src with actual video/GIF when available */}
+          {/* To add actual demo: replace the video src with your demo.mp4 or demo.gif */}
           <div className="relative max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden border border-gray-700 bg-gray-800 shadow-2xl">
-            <div className="aspect-video flex items-center justify-center relative overflow-hidden">
-              {/* Animated Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20"></div>
+            <div className="aspect-video flex items-center justify-center relative bg-gray-900">
+              {/* Video Element - uncomment when video file is available */}
+              {/*
+              <video
+                className="w-full h-full object-cover"
+                poster="/demo-poster.jpg"
+                controls
+                preload="metadata"
+              >
+                <source src="/demo.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              */}
               
-              {/* Demo Content */}
-              <div className="relative z-10 w-full max-w-lg p-6">
-                {/* Step 1: Create Agent */}
-                <div className="bg-gray-800/90 backdrop-blur rounded-xl p-4 mb-4 border border-gray-700 transform transition-all duration-500 hover:scale-105">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-lg">✨</span>
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">Create Your Agent</p>
-                      <p className="text-gray-400 text-sm">Name your agent & select skills</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Arrow */}
-                <div className="flex justify-center mb-4">
-                  <svg className="w-6 h-6 text-blue-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              {/* Placeholder - shown until demo video is added */}
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20"></div>
+              <div className="relative z-10 flex flex-col items-center justify-center">
+                <button 
+                  type="button"
+                  className="w-20 h-20 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg mb-4"
+                  aria-label="Play demo video"
+                >
+                  <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                   </svg>
-                </div>
-                
-                {/* Step 2: Select Skills */}
-                <div className="bg-gray-800/90 backdrop-blur rounded-xl p-4 mb-4 border border-gray-600 transform transition-all duration-500 hover:scale-105">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-lg">🎯</span>
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">Pick Skills</p>
-                      <p className="text-gray-400 text-sm">Content, SEO, Marketing & more</p>
-                    </div>
-                  </div>
-                  {/* Skill Tags */}
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    <span className="px-2 py-1 bg-blue-600/20 text-blue-300 text-xs rounded-full">📝 Content</span>
-                    <span className="px-2 py-1 bg-green-600/20 text-green-300 text-xs rounded-full">🔍 SEO</span>
-                    <span className="px-2 py-1 bg-pink-600/20 text-pink-300 text-xs rounded-full">📢 Marketing</span>
-                  </div>
-                </div>
-                
-                {/* Arrow */}
-                <div className="flex justify-center mb-4">
-                  <svg className="w-6 h-6 text-purple-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-                
-                {/* Step 3: Agent Ready */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 border border-blue-500 transform transition-all duration-500 hover:scale-105">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-lg">🤖</span>
-                    </div>
-                    <div>
-                      <p className="text-white font-medium">Agent Ready in 60s!</p>
-                      <p className="text-blue-100 text-sm">Works 24/7 on Discord & Telegram</p>
-                    </div>
-                  </div>
-                </div>
+                </button>
+                <p className="text-gray-300 font-medium">Watch the Demo</p>
+                <p className="text-gray-500 text-sm mt-1">See how easy it is to create your first AI agent</p>
               </div>
               
               {/* Corner Decorations */}
@@ -121,7 +86,7 @@ export default async function HomePage() {
             {/* Demo Caption */}
             <div className="bg-gray-900/50 px-4 py-3 text-center border-t border-gray-700">
               <p className="text-gray-400 text-sm">
-                <span className="text-blue-400 font-medium">3 simple steps</span> — No coding required
+                <span className="text-blue-400 font-medium">See SuperClaw in action</span> — Create your first agent in 60 seconds
               </p>
             </div>
           </div>
