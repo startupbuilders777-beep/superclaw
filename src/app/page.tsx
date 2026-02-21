@@ -45,42 +45,92 @@ export default async function HomePage() {
             Your personal AI employee that works 24/7. Pick skills, configure, and watch it work.
           </p>
           
-          {/* Demo Video Section - Replace src with actual video/GIF when available */}
-          {/* To add actual demo: replace the video src with your demo.mp4 or demo.gif */}
+          {/* Demo Video Section - Animated Dashboard Preview */}
           <div className="relative max-w-4xl mx-auto mb-16 rounded-2xl overflow-hidden border border-gray-700 bg-gray-800 shadow-2xl">
-            <div className="aspect-video flex items-center justify-center relative bg-gray-900">
-              {/* Video Element - uncomment when video file is available */}
-              {/*
-              <video
-                className="w-full h-full object-cover"
-                poster="/demo-poster.jpg"
-                controls
-                preload="metadata"
-              >
-                <source src="/demo.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              */}
-              
-              {/* Placeholder - shown until demo video is added */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20"></div>
-              <div className="relative z-10 flex flex-col items-center justify-center">
-                <button 
-                  type="button"
-                  className="w-20 h-20 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg mb-4"
-                  aria-label="Play demo video"
-                >
-                  <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                <p className="text-gray-300 font-medium">Watch the Demo</p>
-                <p className="text-gray-500 text-sm mt-1">See how easy it is to create your first AI agent</p>
+            <div className="aspect-video flex items-center justify-center relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+              {/* Animated Dashboard Preview */}
+              <div className="w-[90%] h-[85%] bg-gray-800 rounded-lg border border-gray-600 overflow-hidden shadow-2xl">
+                {/* Dashboard Header */}
+                <div className="bg-gray-700 px-4 py-2 flex items-center gap-2 border-b border-gray-600">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <div className="ml-4 text-gray-400 text-xs">SuperClaw Dashboard</div>
+                </div>
+                
+                {/* Dashboard Content */}
+                <div className="p-4 grid grid-cols-3 gap-3">
+                  {/* Sidebar */}
+                  <div className="col-span-1 space-y-2">
+                    <div className="h-2 w-16 bg-blue-600 rounded animate-pulse"></div>
+                    <div className="h-2 w-12 bg-gray-600 rounded"></div>
+                    <div className="h-2 w-14 bg-gray-600 rounded"></div>
+                    <div className="h-2 w-10 bg-gray-600 rounded"></div>
+                  </div>
+                  
+                  {/* Main Content */}
+                  <div className="col-span-2 space-y-3">
+                    {/* Agent Card */}
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="h-2 w-20 bg-gray-400 rounded"></div>
+                            <div className="h-1.5 w-14 bg-gray-600 rounded mt-1"></div>
+                          </div>
+                        </div>
+                        {/* Status Indicator - Animated */}
+                        <div className="flex items-center gap-1">
+                          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                          <span className="text-green-400 text-xs font-medium">Active</span>
+                        </div>
+                      </div>
+                      
+                      {/* Skills Tags */}
+                      <div className="flex gap-1 flex-wrap">
+                        <span className="px-2 py-0.5 bg-purple-600/50 text-purple-300 text-xs rounded">Content</span>
+                        <span className="px-2 py-0.5 bg-blue-600/50 text-blue-300 text-xs rounded">SEO</span>
+                        <span className="px-2 py-0.5 bg-green-600/50 text-green-300 text-xs rounded">Marketing</span>
+                      </div>
+                    </div>
+                    
+                    {/* Stats Row */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-gray-700/50 rounded p-2 text-center">
+                        <div className="h-4 w-8 bg-blue-500 rounded mx-auto mb-1 animate-pulse"></div>
+                        <div className="h-1.5 w-10 bg-gray-600 rounded mx-auto"></div>
+                      </div>
+                      <div className="bg-gray-700/50 rounded p-2 text-center">
+                        <div className="h-4 w-8 bg-green-500 rounded mx-auto mb-1"></div>
+                        <div className="h-1.5 w-10 bg-gray-600 rounded mx-auto"></div>
+                      </div>
+                      <div className="bg-gray-700/50 rounded p-2 text-center">
+                        <div className="h-4 w-8 bg-purple-500 rounded mx-auto mb-1"></div>
+                        <div className="h-1.5 w-10 bg-gray-600 rounded mx-auto"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Floating Action Button */}
+                <div className="absolute bottom-4 right-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                </div>
               </div>
               
-              {/* Corner Decorations */}
-              <div className="absolute top-4 left-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl"></div>
-              <div className="absolute bottom-4 right-4 w-20 h-20 bg-purple-500/10 rounded-full blur-xl"></div>
+              {/* Floating Label Animation */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-blue-600/90 text-white px-4 py-1 rounded-full text-sm font-medium animate-fade-in-down">
+                Creating your first agent...
+              </div>
             </div>
             
             {/* Demo Caption */}
