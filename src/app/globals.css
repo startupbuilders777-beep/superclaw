@@ -17,3 +17,23 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+/* Demo Video Animation */
+@keyframes fade-in-down {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 3s ease-in-out infinite;
+}
